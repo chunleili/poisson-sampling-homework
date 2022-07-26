@@ -48,12 +48,32 @@ def poisson_disk_sample(desired_samples: int) -> int:
                     tail += 1
     return tail
 
+@ti.kernel
+def leak_filling(s :int) -> int:
+    the_num_samples = s
+    for i in range(grid_n):
+        for j in range(grid_n): #先遍历所有网格
+            if grid[i,j] == -1 : #假如发现了漏下的
+                # print(f"find the leaked {i},{j}")
+                grid_base = tm.vec2(i*dx, j*dx) #该网格左下角坐标
+                for _ in range(100): #就在这个网格内洒它个100次点
+                    p = tm.vec2(ti.random(), ti.random()) + grid_base
+                    collision = check_collision(p, tm.vec2(i,j))
+                    if not collision:   #假如洒到了缝隙
+                        the_num_samples+=1
+                        samples[the_num_samples] = p # 那就记录下点的位置
+                        break   
+                    else:
+                        print(f"I can't pinpoint it in {i},{j}!")
+    return the_num_samples
+
 num_samples = poisson_disk_sample(desired_samples)
+new_num_samples = leak_filling(num_samples)
 gui = ti.GUI("Poisson Disk Sampling", res=800, background_color=0xFFFFFF)
 count = 0
 speed = 300
 while gui.running:
-    gui.circles(samples.to_numpy()[:min(count * speed, num_samples)],
+    gui.circles(samples.to_numpy()[:min(count * speed, new_num_samples)],
                 color=0x000000,
                 radius=1.5)
     count += 1
