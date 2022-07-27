@@ -12,6 +12,8 @@ desired_samples = 100
 window_size = 800
 grid = ti.field(dtype=int, shape=res)
 samples = ti.Vector.field(2, float, shape=desired_samples)
+new_samples = ti.Vector.field(2, float, shape=desired_samples)
+elim = ti.field(int, shape=desired_samples)
 
 grid.fill(-1)
 
@@ -21,7 +23,7 @@ def check_collision(p, index):
     collision = False
     for i in range(max(0, x - 2), min(grid_n, x + 3)):
         for j in range(max(0, y - 2), min(grid_n, y + 3)):
-            if grid[i, j] != -1:
+            # if grid[i, j] != -1:
                 q = samples[grid[i, j]]
                 if (q - p).norm() < radius - 1e-6:
                     collision = True
@@ -65,6 +67,25 @@ def scatter_every_grid() -> int:
     # print(f"num_samples = {tail}")
     return tail
 
+@ti.kernel
+def elimination()->int:
+    n = 0
+    m = 0
+    print(f"elimination")
+    for i in range(grid_n):
+        for j in range(grid_n):
+            index = tm.ivec2(i,j)
+            p = samples[n] * dx
+            n+=1
+            collision = check_collision(p, index)
+            if collision:
+                print(f"elim point {n}: {p.x} {p.y}")
+                elim[n] = 1
+            else :
+                new_samples[m] = p
+                m+=1
+    return m
+
 def draw_grid():
     dy=dx
     X = []
@@ -81,15 +102,16 @@ def draw_grid():
 
 # num_samples = poisson_disk_sample(desired_samples)
 num_samples = scatter_every_grid()
+num_samples = elimination()
 
 gui = ti.GUI("Poisson Disk Sampling", res=800, background_color=0xFFFFFF)
 count = 0
 speed = 300
 while gui.running:
-    gui.circles(samples.to_numpy()[:min(count * speed, num_samples)],
+    gui.circles(new_samples.to_numpy()[:min(count * speed, num_samples)],
                 color=0xababab,
                 radius=radius * 800)
-    gui.circles(samples.to_numpy()[:min(count * speed, num_samples)],
+    gui.circles(new_samples.to_numpy()[:min(count * speed, num_samples)],
                 color=0x000000,
                 radius=3)
     draw_grid()
