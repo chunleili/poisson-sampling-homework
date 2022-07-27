@@ -54,6 +54,10 @@ https://bl.ocks.org/mbostock/dbb02448b0f93e4c82c3
 
 方案2简单一些。这种方案的专业名称被称为是Elimination算法，也就是消除算法。Bridson2007的Poisson Disk sampling属于是上采样。也就是从给定点开始逐步向外扩散式地生成点。（应该算是广度优先搜索的思想）。而我们反其道而行之，采用降采样。也就是先洒多一点，保证每个都有覆盖，然后再去消除重叠的。
 
+我们采用方案2
+
+首先在每个方格内部都随机洒点，得到
+![scatter](pic/scatter.png)
 
 
 

@@ -50,6 +50,20 @@ def poisson_disk_sample(desired_samples: int) -> int:
                     tail += 1
     return tail
 
+@ti.kernel
+def scatter_every_grid() -> int:
+    tail = 0
+    for i in range(grid_n):
+        for j in range(grid_n):
+            grid_base = tm.vec2(i,j) * dx
+            # print(f"grid_base = {grid_base.x},{grid_base.y}")
+
+            samples[tail] = grid_base + ti.random() * dx
+            # print(f"samples[{tail}]={samples[tail].x},{samples[tail].y}")
+            tail += 1
+
+    # print(f"num_samples = {tail}")
+    return tail
 
 def draw_grid():
     dy=dx
@@ -65,7 +79,9 @@ def draw_grid():
     Y = np.array(Y)
     gui.lines(begin=X, end=Y, radius=2, color=0x000000)
 
-num_samples = poisson_disk_sample(desired_samples)
+# num_samples = poisson_disk_sample(desired_samples)
+num_samples = scatter_every_grid()
+
 gui = ti.GUI("Poisson Disk Sampling", res=800, background_color=0xFFFFFF)
 count = 0
 speed = 300
