@@ -47,21 +47,12 @@ https://bl.ocks.org/mbostock/dbb02448b0f93e4c82c3
 
 
 那么我们就有两个方案：
-1. 提升撒点的次数（洒点100次不能洒满，那我就多洒一些呗），这就让留缝隙的几率变小了。
+1. 找到小缝隙，然后在缝隙中洒点 
+2. 先在每个网格中洒点，然后去除冲突的点
 
-这有点类似于**蒙特卡洛**的思想（实际上Poisson disk确实就是一种蒙特卡洛法）。但是很遗憾这显然不是题目所期望的，而且这也可能大幅提升计算量。
+方案1是较为复杂的。这是因为小缝隙（专业术语被称为gap 或者void）形状是不规则的，很难去找到不规则的形状。 目前有许多新算法是针对如何找到这个小缝隙的。比如 Ebeida2011等（参考文献8，文献9，文献10）.
 
-
-2. 检查一下还有哪个网格没点，没点的地方就去洒呗。
-
-我们将采用方案2， 这种方案能够保证“最大化采样”，也就是每个网格一定会被洒点，不能留下空白的网格。
-
-下面我们着手实践！
-
-首先把代码回复到最原始的状态，这样可以追踪到我们改了哪里。
-
-
-
+方案2简单一些。这种方案的专业名称被称为是Elimination算法，也就是消除算法。Bridson2007的Poisson Disk sampling属于是上采样。也就是从给定点开始逐步向外扩散式地生成点。（应该算是广度优先搜索的思想）。而我们反其道而行之，采用降采样。也就是先洒多一点，保证每个都有覆盖，然后再去消除重叠的。
 
 
 
@@ -100,6 +91,20 @@ https://www.cs.ubc.ca/~rbridson/docs/bridson-siggraph07-poissondisk.pdf
 以及ACM DL（附件含C++代码）
 https://dl.acm.org/doi/10.1145/1278780.1278807
 
+8.  寻找小缝隙的算法
+Ebeida, M., Patney, A., Mitchell, S., Davidson, A., Knupp, P., Owens, J. 2011. Efficient Maximal Poisson-Disk 
+Sampling. ACM Trans. Graph. 30, 4, Article 49 (July 2011), 12 pages. DOI = 10.1145/1964921.1964944 
+http://doi.acm.org/10.1145/1964921.1964944.
+
+9.  寻找小缝隙的算法
+Weize Quan, Dong-Ming Yan, Jianwei Guo, Weiliang Meng,  Xiaopeng Zhang, 2016.
+Maximal Poisson-disk Sampling via Sampling Radius Optimization
+http://dx.doi.org/10.1145/3005274.3005281
+
+10.  寻找小缝隙的算法
+Tong Wang, Reiji Suda, 2017. Fast Maximal Poisson-Disk Sampling by Randomized Tiling
+Sampling. ACM Trans. Graph. 30, 4, Article 49 (July 2011), 12 pages. DOI = 10.1145/1964921.1964944 
+10.1145/3105762.3105778
 
 **The bellowing is the old README**
 -------

@@ -1,13 +1,15 @@
 import taichi as ti
 import taichi.math as tm
+import numpy as np
 ti.init(arch=ti.cpu)
 
-grid_n = 400
+grid_n = 10
 res = (grid_n, grid_n)
 dx = 1 / res[0]
 inv_dx = res[0]
 radius = dx * ti.sqrt(2)
-desired_samples = 100000
+desired_samples = 100
+window_size = 800
 grid = ti.field(dtype=int, shape=res)
 samples = ti.Vector.field(2, float, shape=desired_samples)
 
@@ -48,13 +50,32 @@ def poisson_disk_sample(desired_samples: int) -> int:
                     tail += 1
     return tail
 
+
+def draw_grid():
+    dy=dx
+    X = []
+    Y = []
+    for i in range(grid_n):
+        X.append([dx*i,0])
+        Y.append([dx*i,1])
+    for i in range(grid_n):
+        X.append([0, dy*i])
+        Y.append([1, dy*i])
+    X = np.array(X)
+    Y = np.array(Y)
+    gui.lines(begin=X, end=Y, radius=2, color=0x000000)
+
 num_samples = poisson_disk_sample(desired_samples)
 gui = ti.GUI("Poisson Disk Sampling", res=800, background_color=0xFFFFFF)
 count = 0
 speed = 300
 while gui.running:
     gui.circles(samples.to_numpy()[:min(count * speed, num_samples)],
+                color=0xababab,
+                radius=radius * 800)
+    gui.circles(samples.to_numpy()[:min(count * speed, num_samples)],
                 color=0x000000,
-                radius=1.5)
+                radius=3)
+    draw_grid()
     count += 1
     gui.show()
