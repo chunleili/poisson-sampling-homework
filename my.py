@@ -31,6 +31,7 @@ def poisson_disk_sample(desired_samples: int) -> int:
     #tail 代表的是目前已经钉住的点
     head, tail = 0, 1
     samples[0] = tm.vec2(0.5, 0.5)
+    grid[int(grid_n * 0.5), int(grid_n * 0.5)] = 0
 
     while head < tail and tail < desired_samples:
         source_x = samples[head] #新种子的位置
